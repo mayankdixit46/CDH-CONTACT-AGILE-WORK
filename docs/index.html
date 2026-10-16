@@ -1,0 +1,313 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}</style></head><body>
+<title>CDH &amp; CONTACT AGILE WORK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: app bar with tabs over one workspace — Kanban columns scroll sideways, Backlog and Issues are stacked lists */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --sunken:#e3e8ee; --line:#d3dae2;
+  --ink:#16222e; --muted:#5b6a78; --accent:#0f6e74; --accent-ink:#ffffff; --accent-soft:#d6ecec;
+  --s-new:#7b8794; --s-ready:#c08a12; --s-prog:#2f6fd0; --s-test:#8a4fc6; --s-done:#2b8a4b;
+  --danger:#b33a32; --danger-soft:#f6dedb;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f161d; --surface:#18222c; --sunken:#121b23; --line:#2a3743;
+  --ink:#e4ebf1; --muted:#93a3b1; --accent:#4fb8bd; --accent-ink:#06282a; --accent-soft:#163a3d;
+  --s-new:#8d99a5; --s-ready:#e0ad3c; --s-prog:#6a9cf0; --s-test:#b585e8; --s-done:#55b878;
+  --danger:#ef7a70; --danger-soft:#3d1f1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --surface:#18222c; --sunken:#121b23; --line:#2a3743;
+  --ink:#e4ebf1; --muted:#93a3b1; --accent:#4fb8bd; --accent-ink:#06282a; --accent-soft:#163a3d;
+  --s-new:#8d99a5; --s-ready:#e0ad3c; --s-prog:#6a9cf0; --s-test:#b585e8; --s-done:#55b878;
+  --danger:#ef7a70; --danger-soft:#3d1f1c; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--body)}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{display:flex;flex-direction:column;min-height:100%}
+.bar{background:var(--surface);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mark{width:30px;height:30px;border-radius:7px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:800 13px var(--display);flex:none}
+.brand h1{font:800 17px/1.1 var(--display);margin:0;letter-spacing:.01em;text-wrap:balance}
+.brand small{display:block;color:var(--muted);font-size:12px;font-weight:500}
+.tabs{display:flex;gap:4px;background:var(--sunken);padding:3px;border-radius:9px}
+.tab{border:0;background:none;padding:6px 14px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:600}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+.bar .spacer{flex:1}
+.sync{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--s-new)}
+.sync[data-state="live"] i{background:var(--s-done)}
+.sync[data-state="local"] i{background:var(--s-ready)}
+
+main{padding:20px 16px 32px;flex:1;min-width:0}
+.head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;margin-bottom:16px}
+.head h2{font:600 22px/1.2 var(--display);margin:0}
+.head p{margin:2px 0 0;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 14px;border-radius:var(--r);cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.danger.armed{background:var(--danger);color:var(--surface)}
+.notice{background:var(--accent-soft);border-radius:var(--r);padding:10px 14px;margin-bottom:16px}
+
+/* Kanban */
+.board-wrap{overflow-x:auto;padding-bottom:8px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(230px,1fr));gap:12px;min-width:min-content}
+.col{background:var(--sunken);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:240px;border-top:3px solid var(--c)}
+.col.over{outline:2px dashed var(--c);outline-offset:-2px}
+.col-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px 4px}
+.col-h b{font:600 13px var(--body);text-transform:uppercase;letter-spacing:.06em}
+.col-h span{font:500 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.add-in{border:1px dashed var(--line);background:none;border-radius:var(--r);padding:7px;color:var(--muted);cursor:pointer;text-align:left}
+.add-in:hover{color:var(--ink);border-color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;width:100%}
+.card:hover{border-color:var(--muted)}
+.card.dragging{opacity:.4}
+.card .t{font-weight:500;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.ref{font:500 12px var(--mono);color:var(--muted)}
+.pts{font:500 11px var(--mono);background:var(--accent-soft);color:var(--ink);border-radius:4px;padding:1px 6px}
+.tag{background:var(--sunken);border-radius:4px;padding:1px 6px}
+.who{margin-left:auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 10px var(--body);display:grid;place-items:center}
+.empty-col{color:var(--muted);font-size:12px;padding:8px 4px}
+
+/* lists */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.stat b{display:block;font:600 22px var(--display);font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.prog{height:6px;background:var(--sunken);border-radius:3px;margin-top:8px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--s-done)}
+.group{margin-bottom:22px}
+.group h3{font:600 15px var(--display);margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+.group h3 span{font:500 12px var(--mono);color:var(--muted)}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--sunken)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.sev{font-size:12px;font-weight:600;border-radius:4px;padding:1px 7px;white-space:nowrap}
+.sev[data-v="Critical"]{background:var(--danger);color:var(--surface)}
+.sev[data-v="Important"]{background:var(--danger-soft);color:var(--danger)}
+.sev[data-v="Normal"]{background:var(--sunken)}
+.sev[data-v="Minor"],.sev[data-v="Wishlist"]{color:var(--muted)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters select{padding:6px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+
+/* dialog */
+dialog{border:0;border-radius:12px;padding:0;width:min(560px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgb(0 0 0/.3)}
+dialog::backdrop{background:rgb(10 20 30/.45)}
+form.ed{display:flex;flex-direction:column;gap:14px;padding:20px}
+form.ed h3{margin:0;font:600 18px var(--display);display:flex;gap:10px;align-items:baseline}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+label input,label select,label textarea{font-weight:400;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+textarea{resize:vertical;min-height:80px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.actions .left{margin-right:auto}
+.err{color:var(--danger);font-size:13px;margin:0}
+@media (prefers-reduced-motion:no-preference){.card,.btn,.tab{transition:border-color .15s,background .15s,opacity .15s}}
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="brand"><div class="mark" aria-hidden="true">CA</div><div><h1>CDH &amp; CONTACT AGILE WORK</h1><small>Scrum &amp; Kanban workspace</small></div></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-kanban" data-view="kanban" aria-selected="true">Kanban</button>
+      <button class="tab" role="tab" id="tab-backlog" data-view="backlog" aria-selected="false">Backlog</button>
+      <button class="tab" role="tab" id="tab-issues" data-view="issues" aria-selected="false">Issues</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="sync" id="sync" data-state="wait"><i></i><span>Connecting…</span></div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<dialog id="dlg"><form class="ed" id="form" method="dialog"></form></dialog>
+
+<script>
+const STATUSES=[["new","New","--s-new"],["ready","Ready","--s-ready"],["progress","In progress","--s-prog"],["test","Ready for test","--s-test"],["done","Done","--s-done"]];
+const ISTAT=[["new","New","--s-new"],["progress","In progress","--s-prog"],["needs-info","Needs info","--s-ready"],["closed","Closed","--s-done"]];
+const POINTS=["?","0","1","2","3","5","8","13","20","40"];
+const TYPES=["Bug","Question","Enhancement"],SEV=["Wishlist","Minor","Normal","Important","Critical"],PRI=["Low","Normal","High"];
+const S={view:"kanban",stories:[],issues:[],db:null,mode:"wait",ifilter:"open"};
+try{const v=localStorage.getItem("cdh-view");if(["kanban","backlog","issues"].includes(v))S.view=v}catch(e){}
+try{if(/^#(kanban|backlog|issues)$/.test(location.hash))S.view=location.hash.slice(1)}catch(e){}
+
+const $=s=>document.querySelector(s);
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k==="style")e.style.cssText=v;else e.setAttribute(k,v===true?"":v)}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}return e}
+const initials=n=>(n||"").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const ptsNum=p=>isNaN(+p)?0:+p;
+const nextRef=()=>1+Math.max(0,...S.stories.map(s=>s.ref||0),...S.issues.map(s=>s.ref||0));
+const statusOf=(list,id)=>list.find(s=>s[0]===id)||list[0];
+
+function setSync(state,text){const el=$("#sync");el.dataset.state=state;el.querySelector("span").textContent=text}
+
+/* ---------- data layer ---------- */
+async function save(coll,item){
+  const{id,...body}=item;
+  if(S.db){await S.db.collection(coll).doc(id).set(body)}
+  else{const list=coll==="stories"?S.stories:S.issues;const i=list.findIndex(x=>x.id===id);if(i<0)list.push(item);else list[i]=item;persist();render()}
+}
+async function remove(coll,id){
+  if(S.db){await S.db.collection(coll).doc(id).delete()}
+  else{const k=coll==="stories"?"stories":"issues";S[k]=S[k].filter(x=>x.id!==id);persist();render()}
+}
+function persist(){try{localStorage.setItem("cdh-data",JSON.stringify({stories:S.stories,issues:S.issues}))}catch(e){}}
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+async function connect(){
+  let db=null;
+  try{db=window.claude?await window.claude.use("db"):null}catch(e){db=null}
+  if(!db){S.mode="local";try{const d=JSON.parse(localStorage.getItem("cdh-data")||"{}");S.stories=d.stories||[];S.issues=d.issues||[];setSync("local","Saved in this browser")}catch(e){setSync("local","Not saved: browser storage is blocked")}render();return}
+  S.db=db;S.mode="live";
+  const sub=(coll,key)=>db.collection(coll).onSnapshot(snap=>{
+    S[key]=snap.docs.map(d=>({id:d.id,...d.data()}));setSync("live","Live · synced for your team");render();
+  },err=>{setSync("local","Sync stopped ("+err.code+"). Reload the page.")});
+  sub("stories","stories");sub("issues","issues");
+}
+
+/* ---------- views ---------- */
+function render(){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===S.view));
+  const m=$("#main");m.replaceChildren();
+  if(S.mode==="local")m.append(h("div",{class:"notice"},"Your board is saved in this browser only. Other people and other devices won't see your changes."));
+  ({kanban:viewKanban,backlog:viewBacklog,issues:viewIssues})[S.view](m);
+}
+
+function storyCard(s){
+  const c=h("button",{class:"card",draggable:"true",type:"button","data-id":s.id,onclick:()=>editStory(s),
+    ondragstart:e=>{e.dataTransfer.setData("text/plain",s.id);c.classList.add("dragging")},ondragend:()=>c.classList.remove("dragging")},
+    h("span",{class:"t"},h("span",{class:"ref"},"#"+s.ref+" "),s.title),
+    h("span",{class:"meta"},
+      s.points&&s.points!=="?"?h("span",{class:"pts"},s.points+" pts"):null,
+      (s.tags||[]).map(t=>h("span",{class:"tag"},t)),
+      s.sprint?h("span",{},s.sprint):null,
+      s.assignee?h("span",{class:"who",title:s.assignee},initials(s.assignee)):null));
+  return c;
+}
+
+function viewKanban(m){
+  const total=S.stories.length;
+  m.append(h("div",{class:"head"},h("div",{},h("h2",{},"Kanban"),h("p",{},total?`${total} user ${total===1?"story":"stories"} · drag cards between columns`:"Add a user story to start your board.")),
+    h("button",{class:"btn primary",onclick:()=>editStory(null,"new")},"New user story")));
+  const board=h("div",{class:"board"});
+  for(const[id,label,c]of STATUSES){
+    const items=S.stories.filter(s=>(s.status||"new")===id).sort((a,b)=>(a.order||0)-(b.order||0)||a.ref-b.ref);
+    const pts=items.reduce((n,s)=>n+ptsNum(s.points),0);
+    const col=h("section",{class:"col",style:`--c:var(${c})`,"aria-label":label,
+      ondragover:e=>{e.preventDefault();col.classList.add("over")},ondragleave:()=>col.classList.remove("over"),
+      ondrop:async e=>{e.preventDefault();col.classList.remove("over");const sid=e.dataTransfer.getData("text/plain");const s=S.stories.find(x=>x.id===sid);
+        if(s&&s.status!==id){try{await save("stories",{...s,status:id,order:Date.now()})}catch(err){setSync("local","Couldn't move the story: "+err.code)}}}},
+      h("div",{class:"col-h"},h("b",{},label),h("span",{},items.length+(pts?" · "+pts+" pts":""))),
+      items.map(storyCard),
+      !items.length&&id!=="new"?h("div",{class:"empty-col"},"Drop stories here"):null,
+      h("button",{class:"add-in",type:"button",onclick:()=>editStory(null,id)},"+ Add story"));
+    board.append(col);
+  }
+  m.append(h("div",{class:"board-wrap"},board));
+}
+
+function viewBacklog(m){
+  const all=S.stories,done=all.filter(s=>s.status==="done");
+  const tp=all.reduce((n,s)=>n+ptsNum(s.points),0),dp=done.reduce((n,s)=>n+ptsNum(s.points),0);
+  m.append(h("div",{class:"head"},h("div",{},h("h2",{},"Backlog"),h("p",{},"User stories grouped by sprint")),
+    h("button",{class:"btn primary",onclick:()=>editStory(null,"new")},"New user story")));
+  m.append(h("div",{class:"summary"},
+    h("div",{class:"stat"},h("span",{},"Stories"),h("b",{},all.length)),
+    h("div",{class:"stat"},h("span",{},"Total points"),h("b",{},tp)),
+    h("div",{class:"stat"},h("span",{},"Points done"),h("b",{},dp+" / "+tp),h("div",{class:"prog"},h("i",{style:`width:${tp?Math.round(dp/tp*100):0}%`}))),
+    h("div",{class:"stat"},h("span",{},"Open issues"),h("b",{},S.issues.filter(i=>i.status!=="closed").length))));
+  if(!all.length){m.append(h("div",{class:"empty"},"No user stories yet. Create one and give it a sprint name like “Sprint 1” to plan it."));return}
+  const groups=new Map();
+  for(const s of all){const k=s.sprint||"";if(!groups.has(k))groups.set(k,[]);groups.get(k).push(s)}
+  const keys=[...groups.keys()].sort((a,b)=>(a==="")-(b==="")||a.localeCompare(b,undefined,{numeric:true}));
+  for(const k of keys){
+    const items=groups.get(k).sort((a,b)=>a.ref-b.ref),p=items.reduce((n,s)=>n+ptsNum(s.points),0);
+    m.append(h("div",{class:"group"},h("h3",{},k||"Product backlog",h("span",{},items.length+" stories · "+p+" pts")),
+      h("div",{class:"table-wrap"},h("table",{},
+        h("thead",{},h("tr",{},h("th",{},"Ref"),h("th",{},"User story"),h("th",{},"Status"),h("th",{},"Points"),h("th",{},"Assigned to"))),
+        h("tbody",{},items.map(s=>{const st=statusOf(STATUSES,s.status);return h("tr",{onclick:()=>editStory(s)},
+          h("td",{class:"num"},"#"+s.ref),h("td",{},s.title),h("td",{},h("span",{class:"pill",style:`--c:var(${st[2]})`},st[1])),
+          h("td",{class:"num"},s.points||"?"),h("td",{},s.assignee||"—"))}))))));
+  }
+}
+
+function viewIssues(m){
+  const f=S.ifilter;
+  const list=S.issues.filter(i=>f==="all"||(f==="open"?i.status!=="closed":i.status==="closed")).sort((a,b)=>SEV.indexOf(b.severity)-SEV.indexOf(a.severity)||b.ref-a.ref);
+  m.append(h("div",{class:"head"},h("div",{},h("h2",{},"Issues"),h("p",{},"Bugs, questions and enhancement requests")),
+    h("div",{class:"filters"},
+      h("select",{id:"ifilter","aria-label":"Show",onchange:e=>{S.ifilter=e.target.value;render()}},
+        [["open","Open issues"],["closed","Closed issues"],["all","All issues"]].map(([v,l])=>h("option",{value:v,selected:v===f},l))),
+      h("button",{class:"btn primary",onclick:()=>editIssue(null)},"New issue"))));
+  if(!list.length){m.append(h("div",{class:"empty"},S.issues.length?"No issues match this filter.":"No issues reported. Use “New issue” to log a bug or a question."));return}
+  m.append(h("div",{class:"table-wrap"},h("table",{},
+    h("thead",{},h("tr",{},h("th",{},"Ref"),h("th",{},"Issue"),h("th",{},"Type"),h("th",{},"Severity"),h("th",{},"Priority"),h("th",{},"Status"),h("th",{},"Assigned to"))),
+    h("tbody",{},list.map(i=>{const st=statusOf(ISTAT,i.status);return h("tr",{onclick:()=>editIssue(i)},
+      h("td",{class:"num"},"#"+i.ref),h("td",{},i.title),h("td",{},i.type),h("td",{},h("span",{class:"sev","data-v":i.severity},i.severity)),
+      h("td",{},i.priority),h("td",{},h("span",{class:"pill",style:`--c:var(${st[2]})`},st[1])),h("td",{},i.assignee||"—"))})))));
+}
+
+/* ---------- editors ---------- */
+function field(label,el){return h("label",{},label,el)}
+function sel(id,opts,val){return h("select",{id,name:id},opts.map(o=>Array.isArray(o)?h("option",{value:o[0],selected:o[0]===val},o[1]):h("option",{value:o,selected:o===val},o)))}
+
+function openEditor({title,ref,fields,onSave,onDelete}){
+  const form=$("#form"),err=h("p",{class:"err",role:"alert"});
+  let armed=false;
+  const del=onDelete?h("button",{type:"button",class:"btn danger left",onclick:async()=>{
+    if(!armed){armed=true;del.classList.add("armed");del.textContent="Click again to delete";return}
+    try{await onDelete();$("#dlg").close()}catch(e){err.textContent="Couldn't delete: "+(e.code||e.message)}}},"Delete"):null;
+  form.replaceChildren(h("h3",{},title,ref?h("span",{class:"ref"},"#"+ref):null),...fields,err,
+    h("div",{class:"actions"},del,h("button",{type:"button",class:"btn",onclick:()=>$("#dlg").close()},"Cancel"),h("button",{type:"submit",class:"btn primary"},"Save")));
+  form.onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(form));
+    if(!fd.title.trim()){err.textContent="Give it a title.";return}
+    try{await onSave(fd);$("#dlg").close()}catch(x){err.textContent=x.code==="invalid_argument"?"You have view-only access, so changes can't be saved.":"Couldn't save: "+(x.code||x.message)}};
+  $("#dlg").showModal();form.querySelector("input")?.focus();
+}
+
+function editStory(s,status){
+  const d=s||{status:status||"new",points:"?"};
+  openEditor({title:s?"Edit user story":"New user story",ref:s?.ref,
+    fields:[field("Title",h("input",{id:"title",name:"title",value:d.title||"",maxlength:"200",placeholder:"As a customer, I want to…"})),
+      field("Description",h("textarea",{id:"description",name:"description"},d.description||"")),
+      h("div",{class:"grid2"},field("Status",sel("status",STATUSES.map(x=>[x[0],x[1]]),d.status)),field("Points",sel("points",POINTS,d.points)),
+        field("Sprint",h("input",{id:"sprint",name:"sprint",value:d.sprint||"",placeholder:"e.g. Sprint 1"})),
+        field("Assigned to",h("input",{id:"assignee",name:"assignee",value:d.assignee||"",placeholder:"Name"}))),
+      field("Tags (comma separated)",h("input",{id:"tags",name:"tags",value:(d.tags||[]).join(", ")}))],
+    onSave:fd=>save("stories",{id:s?.id||newId(),ref:s?.ref||nextRef(),createdAt:s?.createdAt||new Date().toISOString(),order:s&&s.status===fd.status?(s.order||0):Date.now(),
+      title:fd.title.trim(),description:fd.description,status:fd.status,points:fd.points,sprint:fd.sprint.trim(),assignee:fd.assignee.trim(),
+      tags:fd.tags.split(",").map(t=>t.trim()).filter(Boolean).slice(0,6)}),
+    onDelete:s?()=>remove("stories",s.id):null});
+}
+
+function editIssue(i){
+  const d=i||{type:"Bug",severity:"Normal",priority:"Normal",status:"new"};
+  openEditor({title:i?"Edit issue":"New issue",ref:i?.ref,
+    fields:[field("Title",h("input",{id:"title",name:"title",value:d.title||"",maxlength:"200"})),
+      field("Description",h("textarea",{id:"description",name:"description"},d.description||"")),
+      h("div",{class:"grid2"},field("Type",sel("type",TYPES,d.type)),field("Severity",sel("severity",SEV,d.severity)),
+        field("Priority",sel("priority",PRI,d.priority)),field("Status",sel("status",ISTAT.map(x=>[x[0],x[1]]),d.status))),
+      field("Assigned to",h("input",{id:"assignee",name:"assignee",value:d.assignee||""}))],
+    onSave:fd=>save("issues",{id:i?.id||newId(),ref:i?.ref||nextRef(),createdAt:i?.createdAt||new Date().toISOString(),
+      title:fd.title.trim(),description:fd.description,type:fd.type,severity:fd.severity,priority:fd.priority,status:fd.status,assignee:fd.assignee.trim()}),
+    onDelete:i?()=>remove("issues",i.id):null});
+}
+
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{S.view=t.dataset.view;try{localStorage.setItem("cdh-view",S.view)}catch(e){}render()}));
+render();connect();
+</script>
+
+</body></html>
